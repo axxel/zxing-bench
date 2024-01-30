@@ -9,23 +9,23 @@ Looking at crates.io for barcode reader software there seem to be mainly 3 proje
 
  To run a simple benchmark comparison execute
  ```sh
- cargo run --release -- <image-file-name>
+ cargo run --release -- <image-file-name> [--all]
  ```
 
-When run for [this image](https://user-images.githubusercontent.com/15202578/170050507-1f10f0ef-82ca-4e14-a2d2-4b288ec54809.png) with the global variable `USE_COMMON_FORMATS` set to `true` to make the runtime comparison fair, this results in the following output on my 4 year old mobile Core i9 CPU:
+When run for [this image](https://user-images.githubusercontent.com/15202578/170050507-1f10f0ef-82ca-4e14-a2d2-4b288ec54809.png) without the `--all` flag to make the runtime comparison fair, this results in the following output on my 4 year old mobile Core i9 CPU:
 
 ```
 running zxing-cpp...
   ITF         : 00123456
   EAN-13      : 0012345678905
-  Codabar     : 012345
   UPC-E       : 01234565
   EAN-8       : 01234565
   EAN-13      : 1234567890128
+  Codabar     : C012345D
   Code128     : CODE128
   Code39      : CODE39
   Code93      : CODE93
-found 9 codes in 78ms
+found 9 codes in 77ms
 
 running rxing...
   ean 13      : 0012345678905
@@ -50,7 +50,7 @@ running zbar-rust...
 found 9 codes in 140ms
 ```
 
-With `USE_COMMON_FORMATS = false` to detect all supported formats, the timinings change as follows:
+Passing `--all` to detect all supported formats, the timinings change as follows:
 
 ```
 running zxing-cpp...

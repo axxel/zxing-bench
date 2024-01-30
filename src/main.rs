@@ -6,20 +6,17 @@
 struct FmtTxt(String, String);
 type Results = Vec<FmtTxt>;
 
-static USE_COMMON_FORMATS: bool = true;
-
-fn test_zxing_cpp(image: &image::GrayImage) -> Results {
+fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
     use zxing_cpp::BarcodeFormat::*;
     use zxing_cpp::*;
 
-    let iv = ImageView::from(image);
     let mut opts = ReaderOptions::default().try_invert(false);
 
-    if USE_COMMON_FORMATS {
+    if limit_formats {
         opts.set_formats(Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | QRCode | UPCE);
     }
 
-    let results = read_barcodes(&iv, &opts).unwrap();
+    let results = read_barcodes(image, &opts).unwrap();
 
     results
         .iter()
@@ -27,13 +24,13 @@ fn test_zxing_cpp(image: &image::GrayImage) -> Results {
         .collect()
 }
 
-fn test_rxing(image: &image::GrayImage) -> Results {
+fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
     use rxing::BarcodeFormat::*;
     use rxing::*;
     use std::collections::HashSet;
 
     let mut hints = DecodingHintDictionary::default();
-    if USE_COMMON_FORMATS {
+    if limit_formats {
         hints.insert(
             DecodeHintType::POSSIBLE_FORMATS,
             DecodeHintValue::PossibleFormats(HashSet::from([
@@ -98,8 +95,9 @@ where
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let image = image::open(&args[1]).unwrap().into_luma8();
+    let limit_formats = args.len() < 3 || args[2] != "--all";
 
-    bench(|| test_zxing_cpp(&image), "zxing-cpp");
-    bench(|| test_rxing(&image), "rxing");
+    bench(|| test_zxing_cpp(&image, limit_formats), "zxing-cpp");
+    bench(|| test_rxing(&image, limit_formats), "rxing");
     bench(|| test_zbar_rust(&image), "zbar-rust");
 }
