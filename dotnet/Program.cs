@@ -109,6 +109,7 @@ public class Program
 
     public static void Bench(string name, string[] files, Func<string, int> f)
     {
+        Console.WriteLine($"Starting scan with {name}...");
         var watch = System.Diagnostics.Stopwatch.StartNew();
         int n = 0;
         foreach (var fn in files)

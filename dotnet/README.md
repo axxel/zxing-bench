@@ -6,7 +6,7 @@ This is a little experiment related to my latest effort of bringing
 Looking at nuget.org for barcode reader libraries there are a bunch of options of which I took two of the most popular:
  * https://www.nuget.org/packages/Dynamsoft.DotNet.Barcode (a .NET wrapper around the commercial Dynamsoft c++ library)
  * https://www.nuget.org/packages/ZXing.Net (an open source C# port of the ZXing java library)
- * https://www.nuget.org/packages/ZXingCpp/ (a Rust wrapper around the open source zxing-cpp c++ library)
+ * https://www.nuget.org/packages/ZXingCpp/ (a .NET wrapper around the open source zxing-cpp c++ library)
 
  To run a simple benchmark comparison execute
  ```sh

@@ -11,7 +11,7 @@
     <PackageReference Include="Dynamsoft.DotNet.Barcode" Version="9.6.30" />
     <PackageReference Include="Magick.NET-Q8-x64" Version="13.5.0" />
     <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.13" />
-    <PackageReference Include="ZXingCpp" Version="0.1.0-alpha" />
+    <PackageReference Include="ZXingCpp" Version="0.1.1-alpha" />
   </ItemGroup>
 
 </Project>
