@@ -25,7 +25,7 @@ running zxing-cpp...
   Code128     : CODE128
   Code39      : CODE39
   Code93      : CODE93
-found 9 codes in 77ms
+found 9 codes in 76ms
 
 running rxing...
   ean 13      : 0012345678905
@@ -35,7 +35,7 @@ running rxing...
   code 128    : CODE128
   code 39     : CODE39
   code 93     : CODE93
-found 7 codes in 1860ms
+found 7 codes in 2123ms
 
 running zbar-rust...
   ZBarEAN13   : 0012345000065
@@ -47,7 +47,7 @@ running zbar-rust...
   ZBarCode128 : CODE128
   ZBarCode39  : CODE39
   ZBarCode93  : CODE93
-found 9 codes in 140ms
+found 9 codes in 127ms
 ```
 
 Passing `--all` to detect all supported formats, the timinings change as follows:
@@ -57,7 +57,7 @@ running zxing-cpp...
 found 9 codes in 128ms
 
 running rxing...
-found 7 codes in 3023ms
+found 7 codes in 3453ms
 
 running zbar-rust...
 found 9 codes in 126ms
@@ -67,14 +67,14 @@ Executing with the 'false positive' [test image](https://github.com/zxing-cpp/zx
 
 ```
 running zxing-cpp...
-found 0 codes in 9ms
+found 0 codes in 8ms
 
 running rxing...
   upc e       : 19758226
-found 1 codes in 93ms
+found 1 codes in 96ms
 
 running zbar-rust...
-found 0 codes in 34ms
+found 0 codes in 33ms
 ```
 
 My personal and opinionated conclusion: use `zxing-cpp`. ;-)
