@@ -6,20 +6,6 @@ using ZXing.SkiaSharp;
 using Dynamsoft;
 using Dynamsoft.DBR;
 
-// public static class ImageMagickBarcodeReader
-// {
-//     public static List<Barcode> Read(MagickImage img, ReaderOptions? opts = null)
-//     {
-//         if (img.DetermineBitDepth() < 8)
-//             img.SetBitDepth(8);
-//         var bytes = img.ToByteArray(MagickFormat.Gray);
-//         var iv = new ImageView(bytes, img.Width, img.Height, ImageFormat.Lum, 0, 0);
-//         return ZXingCpp.BarcodeReader.Read(iv, opts);
-//     }
-
-//     public static List<Barcode> Read(this ZXingCpp.BarcodeReader reader, MagickImage img) => Read(img, reader);
-// }
-
 public static class SkBitmapBarcodeReader
 {
 	public static List<Barcode> Read(SKBitmap img, ReaderOptions? opts = null)
@@ -78,12 +64,7 @@ public class Program
             using (var img = SKBitmap.Decode(filename))
             {
                 var source = new SKBitmapLuminanceSource(img);
-                Result[] barcodes = reader.DecodeMultiple(source);
-                if (barcodes is null)
-                    return 0;
-                // foreach (var b in barcodes)
-                //     Console.WriteLine($"  {b.BarcodeFormat} : {b.Text}");
-                return barcodes.Length;
+                return reader.DecodeMultiple(source)?.Length ?? 0;
             }
         };
     }
@@ -96,10 +77,7 @@ public class Program
         {
             using (var img = SKBitmap.Decode(filename))
             {
-                var barcodes = reader.Read(img);
-                // foreach (var b in barcodes)
-                //     Console.WriteLine($"  {b.Format} : {b.Text}");
-                return barcodes.Count;
+                return reader.Read(img).Count;
             }
         };
     }
@@ -125,14 +103,7 @@ public class Program
 
         return (filename) =>
         {
-            var results = dbr.DecodeFile(filename, "");
-
-            if (results == null)
-                return 0;
-
-            // foreach (var b in results)
-            //     Console.WriteLine($"  {b.BarcodeFormatString} : {b.BarcodeText}");
-            return results.Length;
+            return dbr.DecodeFile(filename, "")?.Length ?? 0;
         };
     }
 
@@ -156,7 +127,7 @@ public class Program
         }
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
-        Console.WriteLine($"\n{name} found {n} barcodes in {elapsedMs}ms\n");
+        Console.WriteLine($"\n{name} found {n,3} barcodes in {elapsedMs,4}ms\n");
     }
 
     public static void Main(string[] args)
