@@ -1,30 +1,55 @@
 using System.Collections.Generic;
-using ImageMagick;
+using SkiaSharp;
 using ZXingCpp;
 using ZXing;
-using ZXing.Magick;
+using ZXing.SkiaSharp;
 using Dynamsoft;
 using Dynamsoft.DBR;
 
-public static class ImageMagickBarcodeReader
-{
-    public static List<Barcode> Read(MagickImage img, ReaderOptions? opts = null)
-    {
-        if (img.DetermineBitDepth() < 8)
-            img.SetBitDepth(8);
-        var bytes = img.ToByteArray(MagickFormat.Gray);
-        var iv = new ImageView(bytes, img.Width, img.Height, ImageFormat.Lum, 0, 0);
-        return ZXingCpp.BarcodeReader.Read(iv, opts);
-    }
+// public static class ImageMagickBarcodeReader
+// {
+//     public static List<Barcode> Read(MagickImage img, ReaderOptions? opts = null)
+//     {
+//         if (img.DetermineBitDepth() < 8)
+//             img.SetBitDepth(8);
+//         var bytes = img.ToByteArray(MagickFormat.Gray);
+//         var iv = new ImageView(bytes, img.Width, img.Height, ImageFormat.Lum, 0, 0);
+//         return ZXingCpp.BarcodeReader.Read(iv, opts);
+//     }
 
-    public static List<Barcode> Read(this ZXingCpp.BarcodeReader reader, MagickImage img) => Read(img, reader);
+//     public static List<Barcode> Read(this ZXingCpp.BarcodeReader reader, MagickImage img) => Read(img, reader);
+// }
+
+public static class SkBitmapBarcodeReader
+{
+	public static List<Barcode> Read(SKBitmap img, ReaderOptions? opts = null)
+	{
+		var format = img.Info.ColorType switch
+		{
+			SKColorType.Gray8 => ImageFormat.Lum,
+			SKColorType.Rgba8888 => ImageFormat.RGBX,
+			SKColorType.Bgra8888 => ImageFormat.BGRX,
+			_ => ImageFormat.None,
+		};
+		if (format == ImageFormat.None)
+		{
+			if (!img.CanCopyTo(SKColorType.Gray8))
+				throw new Exception("Incompatible SKColorType");
+			img = img.Copy(SKColorType.Gray8);
+			format = ImageFormat.Lum;
+		}
+		var iv = new ImageView(img.GetPixels(), img.Info.Width, img.Info.Height, format);
+		return ZXingCpp.BarcodeReader.Read(iv, opts);
+	}
+
+	public static List<Barcode> Read(this ZXingCpp.BarcodeReader reader, SKBitmap img) => Read(img, reader);
 }
 
 public class Program
 {
     public static Func<string, int> ZXing()
     {
-        var reader = new ZXing.Magick.BarcodeReader { AutoRotate = true };
+        var reader = new ZXing.SkiaSharp.BarcodeReader { AutoRotate = true };
         reader.Options.Hints.Add(DecodeHintType.TRY_HARDER, true);
         reader.Options.Hints.Add(DecodeHintType.ALSO_INVERTED, true);
         var vector = new List<BarcodeFormat>()
@@ -50,13 +75,13 @@ public class Program
 
         return (filename) =>
         {
-            var img = new MagickImage(filename);
-            var source = new MagickImageLuminanceSource(img);
+            var img = SKBitmap.Decode(filename);
+            var source = new SKBitmapLuminanceSource(img);
             Result[] barcodes = reader.DecodeMultiple(source);
             if (barcodes is null)
                 return 0;
-            foreach (var b in barcodes)
-                Console.WriteLine($"  {b.BarcodeFormat} : {b.Text}");
+            // foreach (var b in barcodes)
+            //     Console.WriteLine($"  {b.BarcodeFormat} : {b.Text}");
             return barcodes.Length;
         };
     }
@@ -67,10 +92,10 @@ public class Program
 
         return (filename) =>
         {
-            var img = new MagickImage(filename);
+            var img = SKBitmap.Decode(filename);
             var barcodes = reader.Read(img);
-            foreach (var b in barcodes)
-                Console.WriteLine($"  {b.Format} : {b.Text}");
+            // foreach (var b in barcodes)
+            //     Console.WriteLine($"  {b.Format} : {b.Text}");
             return barcodes.Count;
         };
     }
@@ -101,28 +126,49 @@ public class Program
             if (results == null)
                 return 0;
 
-            foreach (var b in results)
-                Console.WriteLine($"  {b.BarcodeFormatString} : {b.BarcodeText}");
+            // foreach (var b in results)
+            //     Console.WriteLine($"  {b.BarcodeFormatString} : {b.BarcodeText}");
             return results.Length;
         };
     }
 
-    public static void Bench(string name, string[] files, Func<string, int> f)
+    public static void Bench(string name, IEnumerable<string> files, Func<string, int> f)
     {
-        Console.WriteLine($"Starting scan with {name}...");
+        Console.Write($"Starting scan with {name} ");
         var watch = System.Diagnostics.Stopwatch.StartNew();
         int n = 0;
         foreach (var fn in files)
-            n += f(fn);
+        {
+            Console.Write(".");
+            try
+            {
+                n += f(fn);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"  FAILED: {fn}: {e}");
+            }
+        }
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
-        Console.WriteLine($"{name} found {n} barcodes in {elapsedMs}ms\n");
+        Console.WriteLine($"\n{name} found {n} barcodes in {elapsedMs}ms\n");
     }
 
     public static void Main(string[] args)
     {
-        Bench("ZXing.Net", args, ZXing());
-        Bench("Dynamsoft", args, Dynamsofti());
-        Bench("ZXingCpp ", args, ZXingCpp());
+        string[] endings = {".png", ".jpg", ".jpeg"};
+        List<string> files = new();
+        foreach (var arg in args)
+        {
+            if (Directory.Exists(arg))
+                foreach (var file in Directory.EnumerateFiles(arg, "*.*", SearchOption.AllDirectories).Where(x => endings.Any(x.EndsWith)))
+                    files.Add(file);
+            else
+                files.Add(arg);
+        }
+
+        Bench("ZXing.Net", files, ZXing());
+        Bench("Dynamsoft", files, Dynamsofti());
+        Bench("ZXingCpp ", files, ZXingCpp());
     }
 }

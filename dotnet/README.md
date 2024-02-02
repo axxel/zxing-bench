@@ -10,7 +10,7 @@ Looking at nuget.org for barcode reader libraries there are a bunch of options o
 
  To run a simple benchmark comparison execute
  ```sh
- dotnet run -- <image-file-name>
+ dotnet run -- <image-file-or-directory, ...>
  ```
 
 When run for [this image](https://github.com/Dynamsoft/barcode-reader-dotnet-samples/blob/main/images/AllSupportedBarcodeTypes.png)
@@ -26,7 +26,7 @@ results are as follows on my 4 year old mobile Core i9 CPU:
   UPC_A : 012345678905
   UPC_E : 01234565
   EAN_13 : 1234567890128
-ZXing.Net found 9 barcodes in 3303ms
+ZXing.Net found 9 barcodes in 3164ms
 
   CODE_128 : CODE128
   CODE_93 : CODE93
@@ -42,7 +42,7 @@ ZXing.Net found 9 barcodes in 3303ms
   CODE_39_EXTENDED : CODE39
   EAN_8 : 01234565
   UPC_E : 01234565
-Dynamsoft found 14 barcodes in 207ms
+Dynamsoft found 14 barcodes in 216ms
 
   Code39 : CODE39
   Code128 : CODE128
@@ -58,18 +58,23 @@ Dynamsoft found 14 barcodes in 207ms
   DataMatrix : www.dynamsoft.com
   QRCode : www.dynamsoft.com
   Aztec : Dynamsoft
-ZXingCpp  found 14 barcodes in 172ms
+ZXingCpp  found 14 barcodes in 79ms
 ```
 
 Executing with the 'false positive' [test image](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples/falsepositives-1/16.png)
 results in:
 
 ```
-ZXing.Net found 0 barcodes in 959ms
-
-Dynamsoft found 0 barcodes in 238ms
-
-ZXingCpp  found 0 barcodes in 31ms
+ZXing.Net found 1 barcodes in 1208ms
+Dynamsoft found 0 barcodes in  239ms
+ZXingCpp  found 0 barcodes in   25ms
 ```
 
-My personal and opinionated conclusion: use `ZXingCpp`. ;-)
+Letting it run through all the [test images](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples) we get:
+```
+ZXing.Net found 890 barcodes in 49895ms
+Dynamsoft found 960 barcodes in 27906ms
+ZXingCpp  found 953 barcodes in  4962ms
+```
+
+My personal and "biased" conclusion: use `ZXingCpp` ;-)
