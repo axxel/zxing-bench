@@ -77,4 +77,11 @@ Dynamsoft found 960 barcodes in 27906ms
 ZXingCpp  found 953 barcodes in  4962ms
 ```
 
+For the set of very challenging [QRCodes](https://boofcv.org/index.php?title=Performance:QrCode) we get:
+```
+ZXing.Net found 323 barcodes in 291s
+Dynamsoft found 895 barcodes in 105s
+ZXingCpp  found 975 barcodes in  50s
+```
+
 My personal and "biased" conclusion: use `ZXingCpp` ;-)

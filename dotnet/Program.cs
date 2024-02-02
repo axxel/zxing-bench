@@ -75,14 +75,16 @@ public class Program
 
         return (filename) =>
         {
-            var img = SKBitmap.Decode(filename);
-            var source = new SKBitmapLuminanceSource(img);
-            Result[] barcodes = reader.DecodeMultiple(source);
-            if (barcodes is null)
-                return 0;
-            // foreach (var b in barcodes)
-            //     Console.WriteLine($"  {b.BarcodeFormat} : {b.Text}");
-            return barcodes.Length;
+            using (var img = SKBitmap.Decode(filename))
+            {
+                var source = new SKBitmapLuminanceSource(img);
+                Result[] barcodes = reader.DecodeMultiple(source);
+                if (barcodes is null)
+                    return 0;
+                // foreach (var b in barcodes)
+                //     Console.WriteLine($"  {b.BarcodeFormat} : {b.Text}");
+                return barcodes.Length;
+            }
         };
     }
 
@@ -92,11 +94,13 @@ public class Program
 
         return (filename) =>
         {
-            var img = SKBitmap.Decode(filename);
-            var barcodes = reader.Read(img);
-            // foreach (var b in barcodes)
-            //     Console.WriteLine($"  {b.Format} : {b.Text}");
-            return barcodes.Count;
+            using (var img = SKBitmap.Decode(filename))
+            {
+                var barcodes = reader.Read(img);
+                // foreach (var b in barcodes)
+                //     Console.WriteLine($"  {b.Format} : {b.Text}");
+                return barcodes.Count;
+            }
         };
     }
 
@@ -142,6 +146,7 @@ public class Program
             Console.Write(".");
             try
             {
+                // Console.WriteLine($"{fn}");
                 n += f(fn);
             }
             catch (Exception e)
