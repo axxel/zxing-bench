@@ -25,7 +25,7 @@ running zxing-cpp...
   Code128     : CODE128
   Code39      : CODE39
   Code93      : CODE93
-found 9 codes in 76ms
+found 9 codes in 79ms
 
 running rxing...
   ean 13      : 0012345678905
@@ -35,7 +35,7 @@ running rxing...
   code 128    : CODE128
   code 39     : CODE39
   code 93     : CODE93
-found 7 codes in 2123ms
+found 7 codes in 1850ms
 
 running zbar-rust...
   ZBarEAN13   : 0012345000065
@@ -48,16 +48,17 @@ running zbar-rust...
   ZBarCode39  : CODE39
   ZBarCode93  : CODE93
 found 9 codes in 127ms
+
 ```
 
 Passing `--all` to detect all supported formats, the timinings change as follows:
 
 ```
 running zxing-cpp...
-found 9 codes in 128ms
+found 9 codes in 120ms
 
 running rxing...
-found 7 codes in 3453ms
+found 7 codes in 2958ms
 
 running zbar-rust...
 found 9 codes in 126ms
