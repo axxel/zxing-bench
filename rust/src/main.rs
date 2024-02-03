@@ -30,6 +30,9 @@ fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
     use std::collections::HashSet;
 
     let mut hints = DecodingHintDictionary::default();
+    // hints.insert(DecodeHintType::TRY_HARDER, DecodeHintValue::TryHarder(true));
+    // hints.insert(DecodeHintType::ALSO_INVERTED, DecodeHintValue::AlsoInverted(false));
+
     if limit_formats {
         hints.insert(
             DecodeHintType::POSSIBLE_FORMATS,
@@ -86,7 +89,8 @@ where
         println!("  {:<12}: {}", r.0, r.1);
     }
     println!(
-        "found {} codes in {}ms\n",
+        "{:9} found {:3} codes in {:4}ms\n",
+        name,
         results.len(),
         elapsed.as_millis()
     );
@@ -97,7 +101,7 @@ fn main() {
     let image = image::open(&args[1]).unwrap().into_luma8();
     let limit_formats = args.len() < 3 || args[2] != "--all";
 
-    bench(|| test_zxing_cpp(&image, limit_formats), "zxing-cpp");
     bench(|| test_rxing(&image, limit_formats), "rxing");
     bench(|| test_zbar_rust(&image), "zbar-rust");
+    bench(|| test_zxing_cpp(&image, limit_formats), "zxing-cpp");
 }

@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 image = "*"
 zxing-cpp = { version = "0.2.2", features = ["bundled", "image"] }
-rxing = { version = "0.5.6", features = ["image"] }
+rxing = { version = "0.5.7", features = ["image"] }
 zbar-rust = "0.0.23"

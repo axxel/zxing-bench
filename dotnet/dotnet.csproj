@@ -16,7 +16,7 @@
     <PackageReference Include="ZXing.Net.Bindings.SkiaSharp" Version="0.16.13" />
     <!-- <PackageReference Include="Magick.NET-Q8-x64" Version="13.5.0" />
     <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.13" /> -->
-    <PackageReference Include="ZXingCpp" Version="0.1.2-alpha" />
+    <PackageReference Include="ZXingCpp" Version="0.1.3-alpha" />
   </ItemGroup>
 
 </Project>
