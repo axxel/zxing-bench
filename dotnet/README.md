@@ -36,6 +36,13 @@ Dynamsoft found 960 barcodes in 27906ms
 ZXingCpp  found 953 barcodes in  4962ms
 ```
 
+Doing the same with the `--single` mode, which looks for at most one barcode per image, results in:
+```
+ZXing.Net found 858 barcodes in 24537ms
+Dynamsoft found 940 barcodes in 25714ms
+ZXingCpp  found 928 barcodes in  2702ms
+```
+
 For [this set](https://boofcv.org/index.php?title=Performance:QrCode) of very challenging QRCodes we get:
 ```
 ZXing.Net found 323 barcodes in 291s

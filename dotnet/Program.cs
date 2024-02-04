@@ -33,6 +33,8 @@ public static class SkBitmapBarcodeReader
 
 public class Program
 {
+    public static bool SingleBarcodeMode = false;
+
     public static Func<string, int> ZXing()
     {
         var reader = new ZXing.SkiaSharp.BarcodeReader { AutoRotate = true };
@@ -64,7 +66,10 @@ public class Program
             using (var img = SKBitmap.Decode(filename))
             {
                 var source = new SKBitmapLuminanceSource(img);
-                return reader.DecodeMultiple(source)?.Length ?? 0;
+                if (SingleBarcodeMode)
+                    return reader.Decode(source) == null ? 0 : 1;
+                else
+                    return reader.DecodeMultiple(source)?.Length ?? 0;
             }
         };
     }
@@ -72,6 +77,8 @@ public class Program
     public static Func<string, int> ZXingCpp()
     {
         var reader = new ZXingCpp.BarcodeReader();
+        if (SingleBarcodeMode)
+            reader.MaxNumberOfSymbols = 1;
 
         return (filename) =>
         {
@@ -98,6 +105,9 @@ public class Program
         // settings.BinarizationModes[0] = EnumBinarizationMode.BM_LOCAL_BLOCK;
         // settings.DeblurModes[0] = EnumDeblurMode.DM_BASED_ON_LOC_BIN;
         // settings.DeblurModes[1] = EnumDeblurMode.DM_THRESHOLD_BINARIZATION;
+        // settings.MaxAlgorithmThreadCount = 1;
+        if (SingleBarcodeMode)
+            settings.ExpectedBarcodesCount = 1;
 
         dbr.UpdateRuntimeSettings(settings);
 
@@ -139,6 +149,8 @@ public class Program
             if (Directory.Exists(arg))
                 foreach (var file in Directory.EnumerateFiles(arg, "*.*", SearchOption.AllDirectories).Where(x => endings.Any(x.EndsWith)))
                     files.Add(file);
+            else if (arg == "--single")
+                SingleBarcodeMode = true;
             else
                 files.Add(arg);
         }
