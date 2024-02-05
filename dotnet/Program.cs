@@ -37,29 +37,34 @@ public class Program
 
     public static Func<string, int> ZXing()
     {
-        var reader = new ZXing.SkiaSharp.BarcodeReader { AutoRotate = true };
-        reader.Options.Hints.Add(DecodeHintType.TRY_HARDER, true);
-        reader.Options.Hints.Add(DecodeHintType.ALSO_INVERTED, true);
-        var vector = new List<BarcodeFormat>()
+        var reader = new ZXing.SkiaSharp.BarcodeReader
         {
-            BarcodeFormat.UPC_A,
-            BarcodeFormat.UPC_E,
-            BarcodeFormat.EAN_13,
-            BarcodeFormat.EAN_8,
-            BarcodeFormat.RSS_14,
-            BarcodeFormat.RSS_EXPANDED,
-            BarcodeFormat.CODE_39,
-            BarcodeFormat.CODE_93,
-            BarcodeFormat.CODE_128,
-            BarcodeFormat.ITF,
-            BarcodeFormat.QR_CODE,
-            BarcodeFormat.DATA_MATRIX,
-            BarcodeFormat.AZTEC,
-            BarcodeFormat.PDF_417,
-            BarcodeFormat.CODABAR,
-            BarcodeFormat.MAXICODE,
+            AutoRotate = true,
+            Options =
+            {
+                TryHarder = true,
+                TryInverted = true,
+                PossibleFormats = new List<BarcodeFormat>()
+                {
+                    BarcodeFormat.UPC_A,
+                    BarcodeFormat.UPC_E,
+                    BarcodeFormat.EAN_13,
+                    BarcodeFormat.EAN_8,
+                    BarcodeFormat.RSS_14,
+                    BarcodeFormat.RSS_EXPANDED,
+                    BarcodeFormat.CODE_39,
+                    BarcodeFormat.CODE_93,
+                    BarcodeFormat.CODE_128,
+                    BarcodeFormat.ITF,
+                    BarcodeFormat.QR_CODE,
+                    BarcodeFormat.DATA_MATRIX,
+                    BarcodeFormat.AZTEC,
+                    BarcodeFormat.PDF_417,
+                    BarcodeFormat.CODABAR,
+                    BarcodeFormat.MAXICODE,
+                },
+            }
         };
-        reader.Options.Hints.Add(DecodeHintType.POSSIBLE_FORMATS, vector);
 
         return (filename) =>
         {
@@ -117,7 +122,7 @@ public class Program
         };
     }
 
-    public static void Bench(string name, IEnumerable<string> files, Func<string, int> f)
+    public static void Bench(string name, ICollection<string> files, Func<string, int> f)
     {
         Console.Write($"Starting scan with {name} ");
         var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -137,7 +142,7 @@ public class Program
         }
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
-        Console.WriteLine($"\n{name} found {n,3} barcodes in {elapsedMs,4}ms\n");
+        Console.WriteLine($"\n{name} found {n,3} barcodes in {files.Count} images in {elapsedMs,4}ms\n");
     }
 
     public static void Main(string[] args)
