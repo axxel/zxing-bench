@@ -16,38 +16,38 @@ Looking at nuget.org for barcode reader libraries there are a bunch of options o
 When run for [this image](https://github.com/Dynamsoft/barcode-reader-dotnet-samples/blob/main/images/AllSupportedBarcodeTypes.png)
 results are as follows on my 4 year old mobile Core i9 CPU:
 ```
-ZXing.Net found 9 barcodes in 3164ms
-Dynamsoft found 14 barcodes in 216ms
-ZXingCpp  found 14 barcodes in 79ms
+ZXing.Net found   9 barcodes in 1 images in 3215ms
+Dynamsoft found  14 barcodes in 1 images in  207ms
+ZXingCpp  found  14 barcodes in 1 images in   68ms
 ```
 
 Executing with the 'false positive' [test image](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples/falsepositives-1/16.png)
 results in:
 ```
-ZXing.Net found 1 barcodes in 1208ms
-Dynamsoft found 0 barcodes in  239ms
-ZXingCpp  found 0 barcodes in   25ms
+ZXing.Net found   1 barcodes in 1 images in 1103ms
+Dynamsoft found   0 barcodes in 1 images in  226ms
+ZXingCpp  found   0 barcodes in 1 images in   21ms
 ```
 
 Letting it run through all the [test images](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples) we get:
 ```
-ZXing.Net found 890 barcodes in 49895ms
-Dynamsoft found 960 barcodes in 27906ms
-ZXingCpp  found 953 barcodes in  4962ms
+ZXing.Net found 890 barcodes in 1079 images in 51917ms
+Dynamsoft found 960 barcodes in 1079 images in 28422ms
+ZXingCpp  found 957 barcodes in 1079 images in  5077ms
 ```
 
 Doing the same with the `--single` mode, which looks for at most one barcode per image, results in:
 ```
-ZXing.Net found 858 barcodes in 24537ms
-Dynamsoft found 940 barcodes in 25714ms
-ZXingCpp  found 928 barcodes in  2702ms
+ZXing.Net found 858 barcodes in 1079 images in 24502ms
+Dynamsoft found 940 barcodes in 1079 images in 25739ms
+ZXingCpp  found 932 barcodes in 1079 images in  2625ms
 ```
 
 For [this set](https://boofcv.org/index.php?title=Performance:QrCode) of very challenging QRCodes we get:
 ```
-ZXing.Net found 323 barcodes in 291s
-Dynamsoft found 895 barcodes in 105s
-ZXingCpp  found 975 barcodes in  50s
+ZXing.Net found 323 barcodes in 537 images in 291s
+Dynamsoft found 895 barcodes in 537 images in 105s
+ZXingCpp  found 969 barcodes in 537 images in  52s
 ```
 
 My personal and "biased" conclusion: use `ZXingCpp` ;-)
