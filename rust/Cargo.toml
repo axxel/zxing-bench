@@ -1,12 +1,12 @@
 [package]
 name = "zxing-bench"
-version = "0.1.1"
+version = "0.1.3"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 image = "*"
-zxing-cpp = { version = "0.2.2", features = ["bundled", "image"] }
-rxing = { version = "0.5.7", features = ["image"] }
+zxing-cpp = { version = "0.4.0", features = ["bundled", "image"] }
+rxing = { version = "0.5.8", features = ["image"] }
 zbar-rust = "0.0.23"

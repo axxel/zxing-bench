@@ -7,18 +7,17 @@ struct FmtTxt(String, String);
 type Results = Vec<FmtTxt>;
 
 fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
-    use zxing_cpp::BarcodeFormat::*;
-    use zxing_cpp::*;
+    use zxingcpp::BarcodeFormat::*;
+    use zxingcpp::*;
 
-    let mut opts = ReaderOptions::default().try_invert(false);
+    let mut read = read().try_invert(false);
 
     if limit_formats {
-        opts.set_formats(Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | QRCode | UPCE);
+        read.set_formats(Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | QRCode | UPCE);
     }
 
-    let results = read_barcodes(image, &opts).unwrap();
-
-    results
+    read.from(image)
+        .unwrap()
         .iter()
         .map(|r| FmtTxt(r.format().to_string(), r.text()))
         .collect()
