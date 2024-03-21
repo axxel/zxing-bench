@@ -13,8 +13,8 @@ public static class SkBitmapBarcodeReader
 		var format = img.Info.ColorType switch
 		{
 			SKColorType.Gray8 => ImageFormat.Lum,
-			SKColorType.Rgba8888 => ImageFormat.RGBX,
-			SKColorType.Bgra8888 => ImageFormat.BGRX,
+			SKColorType.Rgba8888 => ImageFormat.RGBA,
+			SKColorType.Bgra8888 => ImageFormat.BGRA,
 			_ => ImageFormat.None,
 		};
 		if (format == ImageFormat.None)
@@ -28,7 +28,7 @@ public static class SkBitmapBarcodeReader
 		return ZXingCpp.BarcodeReader.Read(iv, opts);
 	}
 
-	public static List<Barcode> Read(this ZXingCpp.BarcodeReader reader, SKBitmap img) => Read(img, reader);
+	public static List<Barcode> From(this ZXingCpp.BarcodeReader reader, SKBitmap img) => Read(img, reader);
 }
 
 public class Program
@@ -81,15 +81,15 @@ public class Program
 
     public static Func<string, int> ZXingCpp()
     {
-        var reader = new ZXingCpp.BarcodeReader();
+        var read = new ZXingCpp.BarcodeReader();
         if (SingleBarcodeMode)
-            reader.MaxNumberOfSymbols = 1;
+            read.MaxNumberOfSymbols = 1;
 
         return (filename) =>
         {
             using (var img = SKBitmap.Decode(filename))
             {
-                return reader.Read(img).Count;
+                return read.From(img).Count;
             }
         };
     }
