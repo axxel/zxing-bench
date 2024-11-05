@@ -5,10 +5,12 @@ using ZXing;
 using ZXing.SkiaSharp;
 using Dynamsoft;
 using Dynamsoft.DBR;
+using QRCodeDecoderLibrary;
+using IronBarCode;
 
 public static class SkBitmapBarcodeReader
 {
-	public static List<Barcode> Read(SKBitmap img, ReaderOptions? opts = null)
+	public static Barcode[] Read(SKBitmap img, ReaderOptions? opts = null)
 	{
 		var format = img.Info.ColorType switch
 		{
@@ -28,12 +30,53 @@ public static class SkBitmapBarcodeReader
 		return ZXingCpp.BarcodeReader.Read(iv, opts);
 	}
 
-	public static List<Barcode> From(this ZXingCpp.BarcodeReader reader, SKBitmap img) => Read(img, reader);
+	public static Barcode[] From(this ZXingCpp.BarcodeReader reader, SKBitmap img) => Read(img, reader);
 }
 
 public class Program
 {
     public static bool SingleBarcodeMode = false;
+
+    public static Func<string, int> PrimeFileCache()
+    {
+        return (filename) =>
+        {
+            using (var img = SKBitmap.Decode(filename))
+            {
+                return 0;
+            }
+        };
+    }
+
+
+    public static Func<string, int> QRCodeDecoderLibrary()
+    {
+        var read = new QRDecoder();
+        // if (SingleBarcodeMode)
+        //     read.MaxNumberOfSymbols = 1;
+
+        return (filename) =>
+        {
+            using (var img = new System.Drawing.Bitmap(filename))
+            {
+                return read.ImageDecoder(img).Length;
+            }
+        };
+    }
+
+    public static Func<string, int> IronBarCodeFn()
+    {
+        IronBarCode.License.LicenseKey = "IRONSUITE.ZXINGCPP.GMAIL.COM.9293-D39AE865B5-BCU3NTXRHF7GXW6K-WIXQXWKCZG6P-LJT5MB52HZUX-4MMUTT3CNR7K-LR6R6GIYCJVB-OWXUNQI7RR24-SMRUH3-TZUVSMLHB26MEA-DEPLOYMENT.TRIAL-7EOSLJ.TRIAL.EXPIRES.08.MAY.2024";
+        var myOptions = new BarcodeReaderOptions()
+        {
+            ExpectBarcodeTypes = BarcodeEncoding.AllOneDimensional
+        };
+
+        return (filename) =>
+        {
+            return IronBarCode.BarcodeReader.Read(filename).Count;
+        };
+    }
 
     public static Func<string, int> ZXing()
     {
@@ -89,7 +132,7 @@ public class Program
         {
             using (var img = SKBitmap.Decode(filename))
             {
-                return read.From(img).Count;
+                return read.From(img).Length;
             }
         };
     }
@@ -160,8 +203,13 @@ public class Program
                 files.Add(arg);
         }
 
-        Bench("ZXing.Net", files, ZXing());
-        Bench("Dynamsoft", files, Dynamsofti());
-        Bench("ZXingCpp ", files, ZXingCpp());
+        Bench("PrimeFileCache...", files, PrimeFileCache());
+        Bench("ZXingCpp   ", files, ZXingCpp());
+
+        // Bench("QRC.Dec..", files, QRCodeDecoderLibrary());
+        // Bench("IronBarCode", files, IronBarCodeFn());
+        Bench("Dynamsoft  ", files, Dynamsofti());
+        Bench("ZXing.Net  ", files, ZXing());
+        Bench("ZXingCpp   ", files, ZXingCpp());
     }
 }

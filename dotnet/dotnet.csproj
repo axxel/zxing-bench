@@ -8,15 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dynamsoft.DotNet.Barcode" Version="9.6.40" />
+    <PackageReference Include="Dynamsoft.DotNet.Barcode" Version="9.6.40.1" />
+    <PackageReference Include="QRCodeDecoderLibrary" Version="2.0.1" />
     <PackageReference Include="SkiaSharp" Version="2.88.7" ExcludeAssets="native" />
     <!-- the following line was required to make dotnet install the missing *.so file on Linux -->
     <!-- on another platform, you will need to remove the "ExludeAssets" property above -->
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.7" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.3" />
     <PackageReference Include="ZXing.Net.Bindings.SkiaSharp" Version="0.16.14" />
     <!-- <PackageReference Include="Magick.NET-Q8-x64" Version="13.5.0" />
     <PackageReference Include="ZXing.Net.Bindings.Magick" Version="0.16.13" /> -->
-    <PackageReference Include="ZXingCpp" Version="0.2.1-alpha" />
+    <PackageReference Include="ZXingCpp" Version="0.3.0-alpha" />
   </ItemGroup>
 
 </Project>
