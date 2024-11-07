@@ -13,8 +13,10 @@ fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
     let mut read = read().try_invert(false);
 
     if limit_formats {
-        read.set_formats(Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | QRCode | UPCE);
+        read.set_formats(Codabar | Code39 | Code93 | Code128 | DataBar | EAN8 | EAN13 | ITF | QRCode | UPCE);
     }
+
+//    let iv = ImageView::from_slice(image.as_ref(), image.width(), image.height(), ImageFormat::Lum).unwrap();
 
     read.from(image)
         .unwrap()
@@ -36,7 +38,7 @@ fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
         hints.insert(
             DecodeHintType::POSSIBLE_FORMATS,
             DecodeHintValue::PossibleFormats(HashSet::from([
-                CODABAR, CODE_39, CODE_93, CODE_128, EAN_8, EAN_13, ITF, QR_CODE, UPC_E,
+                CODABAR, CODE_39, CODE_93, CODE_128, RSS_14, EAN_8, EAN_13, ITF, QR_CODE, UPC_E,
             ])),
         );
     }

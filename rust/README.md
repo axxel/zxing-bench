@@ -25,7 +25,7 @@ running rxing...
   code 128    : CODE128
   code 39     : CODE39
   code 93     : CODE93
-rxing     found   9 codes in 2005ms
+rxing     found   9 codes in 2205ms
 
 running zbar-rust...
   ZBarEAN13   : 0012345000065
@@ -55,9 +55,9 @@ zxing-cpp found   9 codes in   65ms
 Passing `--all` to detect all supported formats, the timinings change as follows:
 
 ```
-rxing     found   9 codes in 3229ms
-zbar-rust found   9 codes in  132ms
-zxing-cpp found   9 codes in  113ms
+rxing     found   9 codes in 3342ms
+zbar-rust found   9 codes in  130ms
+zxing-cpp found   9 codes in  107ms
 ```
 
 Executing with the 'false positive' [test image](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples/falsepositives-1/16.png) for the common formats results in:
@@ -65,13 +65,13 @@ Executing with the 'false positive' [test image](https://github.com/zxing-cpp/zx
 ```
 running rxing...
   upc e       : 19758226
-rxing     found   1 codes in  246ms
+rxing     found   1 codes in  283ms
 
 running zbar-rust...
-zbar-rust found   0 codes in   33ms
+zbar-rust found   0 codes in   34ms
 
 running zxing-cpp...
-zxing-cpp found   0 codes in    8ms
+zxing-cpp found   0 codes in    9ms
 
 ```
 
