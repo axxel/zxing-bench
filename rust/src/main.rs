@@ -30,17 +30,14 @@ fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
     use rxing::*;
     use std::collections::HashSet;
 
-    let mut hints = DecodingHintDictionary::default();
-    // hints.insert(DecodeHintType::TRY_HARDER, DecodeHintValue::TryHarder(true));
-    // hints.insert(DecodeHintType::ALSO_INVERTED, DecodeHintValue::AlsoInverted(false));
+    let mut hints = DecodeHints::default();
+    // hints.TryHarder = Some(false);
+    // hints.AlsoInverted = Some(false);
 
     if limit_formats {
-        hints.insert(
-            DecodeHintType::POSSIBLE_FORMATS,
-            DecodeHintValue::PossibleFormats(HashSet::from([
+        hints.PossibleFormats = Some(HashSet::from([
                 CODABAR, CODE_39, CODE_93, CODE_128, RSS_14, EAN_8, EAN_13, ITF, QR_CODE, UPC_E,
-            ])),
-        );
+        ]));
     }
 
     let results = rxing::helpers::detect_multiple_in_luma_with_hints(
