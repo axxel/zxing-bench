@@ -13,7 +13,7 @@ fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
     let mut read = read().try_invert(false);
 
     if limit_formats {
-        read.set_formats(Codabar | Code39 | Code93 | Code128 | DataBar | EAN8 | EAN13 | ITF | QRCode | UPCE);
+        read.set_formats([Codabar, Code39, Code93, Code128, DataBarOmni, DataBarStkOmni, DataBarExp, DataBarExpStk, EAN8, EAN13, ITF, QRCodeModel2, UPCE]);
     }
 
 //    let iv = ImageView::from_slice(image.as_ref(), image.width(), image.height(), ImageFormat::Lum).unwrap();
@@ -30,18 +30,13 @@ fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
     use rxing::*;
     use std::collections::HashSet;
 
-    let mut hints = DecodingHintDictionary::default();
-    // hints.insert(DecodeHintType::TRY_HARDER, DecodeHintValue::TryHarder(true));
-    // hints.insert(DecodeHintType::ALSO_INVERTED, DecodeHintValue::AlsoInverted(false));
-
+    let mut hints = DecodeHints::default();
     if limit_formats {
-        hints.insert(
-            DecodeHintType::POSSIBLE_FORMATS,
-            DecodeHintValue::PossibleFormats(HashSet::from([
-                CODABAR, CODE_39, CODE_93, CODE_128, RSS_14, EAN_8, EAN_13, ITF, QR_CODE, UPC_E,
-            ])),
-        );
+        hints.PossibleFormats = Some(HashSet::from([
+            CODABAR, CODE_39, CODE_93, CODE_128, RSS_14, RSS_EXPANDED, EAN_8, EAN_13, ITF, QR_CODE, UPC_E,
+        ]));
     }
+
 
     let results = rxing::helpers::detect_multiple_in_luma_with_hints(
         image.clone().into_raw(),
@@ -70,6 +65,23 @@ fn test_zbar_rust(image: &image::GrayImage) -> Results {
             FmtTxt(
                 format!("{:?}", &r.symbol_type),
                 std::str::from_utf8(&r.data).unwrap().to_string(),
+            )
+        })
+        .collect()
+}
+
+fn test_zedbar(image: &image::GrayImage) -> Results {
+    use zedbar::{Image, Scanner};
+    let (width, height) = image.dimensions();
+    let mut img = Image::from_gray(image.as_raw(), width, height).unwrap();
+    let mut scanner = Scanner::new();
+    let results = scanner.scan(&mut img);
+    results
+        .iter()
+        .map(|s| {
+            FmtTxt(
+                format!("{:?}", s.symbol_type()),
+                s.data_string().unwrap_or_default().to_string(),
             )
         })
         .collect()
@@ -104,5 +116,6 @@ fn main() {
 
     bench(|| test_rxing(&image, limit_formats), "rxing");
     bench(|| test_zbar_rust(&image), "zbar-rust");
+    bench(|| test_zedbar(&image), "zedbar");
     bench(|| test_zxing_cpp(&image, limit_formats), "zxing-cpp");
 }
