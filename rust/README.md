@@ -44,11 +44,13 @@ running zedbar...
   Ean13       : 0012345000065
   I25         : 00123456
   Ean13       : 0012345678905
+  Ean8        : 01234565
   Ean13       : 1234567890128
   Codabar     : C012345D
+  Code128     : CODE128
   Code39      : CODE39
   Code93      : CODE93
-zedbar    found   7 codes in   43ms
+zedbar    found   9 codes in   44ms
 
 running zxing-cpp...
   UPC-E       : 0012345000065
@@ -69,7 +71,7 @@ Passing `--all` to detect all supported formats from [this image](https://github
 ```
 rxing     found  15 codes in  537ms
 zbar-rust found  11 codes in   17ms
-zedbar    found   9 codes in   19ms
+zedbar    found  11 codes in   19ms
 zxing-cpp found  15 codes in   11ms
 ```
 

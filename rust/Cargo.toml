@@ -11,4 +11,4 @@ zxing-cpp = { version = "0.5.1", features = ["bundled", "image"] }
 # zxing-cpp = { path = "../../zxing-cpp.git/wrappers/rust", features = ["bundled", "image"] }
 rxing = { version = "0.8.5", features = ["image"] }
 zbar-rust = "0.0.24"
-zedbar = "0.2.2"
+zedbar = "0.2.4"
