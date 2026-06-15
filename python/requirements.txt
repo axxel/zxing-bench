@@ -1,0 +1,13 @@
+Pillow
+numpy
+
+zxing-cpp
+pyzbar
+zbarlight
+pyzxing
+# qreader requires torch; on CPU-only machines install torch first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+qreader
+opencv-python
+
+#spire.barcode

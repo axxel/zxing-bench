@@ -8,3 +8,4 @@ a shot might be worth it.
 So far there are
   * [Rust](rust/README.md)
   * [.NET](dotnet/README.md)
+  * [Python](python/README.md)
