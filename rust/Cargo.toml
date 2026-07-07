@@ -7,8 +7,11 @@ edition = "2024"
 
 [dependencies]
 image = "0.25.*"
-zxing-cpp = { version = "0.5.1", features = ["bundled", "image"] }
+image24 = { package = "image", version = "0.24" }
+zxing-cpp = { version = "0.5.2", features = ["bundled", "image"] }
 # zxing-cpp = { path = "../../zxing-cpp.git/wrappers/rust", features = ["bundled", "image"] }
-rxing = { version = "0.8.5", features = ["image"] }
+rxing = { version = "0.9.1", features = ["image"] }
 zbar-rust = "0.0.24"
-zedbar = "0.2.4"
+zedbar = "0.4.1"
+bardecoder = "0.5.0"
+rqrr = { version = "0.10", features = ["image"] }
