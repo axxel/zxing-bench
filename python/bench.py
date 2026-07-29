@@ -144,7 +144,7 @@ def pyzxing_fn(qrcode_only: bool) -> Callable:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-	IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
+	IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.webp'}
 	qrcode_only = False
 	verbose = False
 	files = []
