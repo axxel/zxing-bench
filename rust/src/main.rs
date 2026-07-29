@@ -19,7 +19,7 @@ fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
     }
 
 //    let iv = ImageView::from_slice(image.as_ref(), image.width(), image.height(), ImageFormat::Lum).unwrap();
-
+//  if this fails with a trait error, make sure your Cargo.lock file uses image 0.25.x for the zxing-cpp package
     read.from(image)
         .unwrap()
         .iter()
@@ -124,7 +124,7 @@ where
     use std::io::Write;
     std::io::stdout().flush().unwrap();
 
-    let start = std::time::Instant::now();
+    let mut elapsed = std::time::Duration::ZERO;
     let mut total_count = 0usize;
     let mut results: Results = Vec::new();
 
@@ -133,7 +133,10 @@ where
         std::io::stdout().flush().unwrap();
         match image::open(file) {
             Ok(img) => {
-                let mut image_results = f(&img.into_luma8());
+                let image = img.into_luma8();
+                let start = std::time::Instant::now();
+                let mut image_results = f(&image);
+                elapsed += start.elapsed();
                 total_count += image_results.len();
                 if verbose {
                     results.append(&mut image_results);
@@ -145,7 +148,6 @@ where
         }
     }
 
-    let elapsed = start.elapsed();
     let time_str = if files.len() == 1 {
         format!("{:5} ms", elapsed.as_millis())
     } else {
