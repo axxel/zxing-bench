@@ -4,7 +4,8 @@ This is a little experiment related to my latest effort of bringing
 [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp) to the .NET community.
 
 Looking at nuget.org for barcode reader libraries there are a bunch of options of which I took two of the most popular:
- * [Dynamsoft](https://www.nuget.org/packages/Dynamsoft.DotNet.Barcode) (a .NET wrapper around the commercial Dynamsoft c++ library)
+ * [Dynamsoft](https://www.nuget.org/packages/Dynamsoft.DotNet.BarcodeReader.Bundle/) (a .NET wrapper around the commercial Dynamsoft c++ library (not available for free or for macOS))
+ * [FeatherQR](https://www.nuget.org/packages/FeatherQR.SkiaSharp/) (an open source .NET QR, Micro QR and rMQR decoder)
  * [ZXing.Net](https://www.nuget.org/packages/ZXing.Net) (an open source C# port of the ZXing java library)
  * [ZXingCpp](https://www.nuget.org/packages/ZXingCpp) (a .NET wrapper around the open source zxing-cpp c++ library)
 
@@ -13,41 +14,32 @@ Looking at nuget.org for barcode reader libraries there are a bunch of options o
  dotnet run -- <image-file-or-directory, ...>
  ```
 
-When run for [this image](https://github.com/Dynamsoft/barcode-reader-dotnet-samples/blob/main/images/AllSupportedBarcodeTypes.png)
-results are as follows on my 4 year old mobile Core i9 CPU:
+Detecting all supported formats from [this image](https://github.com/Dynamsoft/barcode-reader-dotnet-samples/blob/b26e38efe1db2bb6ba11ead320dea07471d988a3/Images/GeneralBarcodes.png) results in the following output on my Apple M4 Pro:
 ```
-ZXing.Net   found   9 barcodes in 1 images in 2935ms
-Dynamsoft   found  14 barcodes in 1 images in  217ms
-ZXingCpp    found  16 barcodes in 1 images in   81ms
+ZXing.Net        found   11 barcodes in 1 images in   864ms
+FeatherQR        found    2 barcodes in 1 images in   113ms
+ZXingCpp         found   16 barcodes in 1 images in    20ms
 ```
 
-Executing with the 'false positive' [test image](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples/falsepositives-1/16.png)
-results in:
+Executing with the 'none' [test images](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples/none-2) that have no barcodes in them results in:
 ```
-ZXing.Net   found   1 barcodes in 1 images in  987ms
-Dynamsoft   found   0 barcodes in 1 images in  230ms
-ZXingCpp    found   0 barcodes in 1 images in   25ms
+ZXing.Net        found    5 barcodes in 25 images in  3.04s
+FeatherQR        found    0 barcodes in 25 images in  0.32s
+ZXingCpp         found    0 barcodes in 25 images in  0.16s
 ```
 
 Letting it run through all the [test images](https://github.com/zxing-cpp/zxing-cpp/blob/master/test/samples) we get:
 ```
-ZXing.Net   found 890 barcodes in 1087 images in 50251ms
-Dynamsoft   found 964 barcodes in 1087 images in 26801ms
-ZXingCpp    found 962 barcodes in 1087 images in  5555ms
+ZXing.Net        found  641 barcodes in 914 images in 12.44s
+FeatherQR        found  188 barcodes in 914 images in  1.22s
+ZXingCpp         found  850 barcodes in 914 images in  1.36s
 ```
 
-Doing the same with the `--single` mode, which looks for at most one barcode per image, results in:
+For [this set](https://boofcv.org/index.php?title=Performance:QrCode) of very challenging QRCodes with the `--qrcode` option to only look for QRCode symbols the results are:
 ```
-ZXing.Net   found 858 barcodes in 1087 images in 24586ms
-Dynamsoft   found 944 barcodes in 1087 images in 25534ms
-ZXingCpp    found 943 barcodes in 1087 images in  2981ms
-```
-
-For [this set](https://boofcv.org/index.php?title=Performance:QrCode) of very challenging QRCodes we get:
-```
-ZXing.Net found 323 barcodes in 537 images in 291s
-Dynamsoft found 895 barcodes in 537 images in 105s
-ZXingCpp  found 969 barcodes in 537 images in  52s
+ZXing.Net        found  703 barcodes in 542 images in 30.68s
+FeatherQR        found 1205 barcodes in 542 images in 10.99s
+ZXingCpp         found 1119 barcodes in 542 images in  6.99s
 ```
 
 My personal and "biased" conclusion: use `ZXingCpp` ;-)
