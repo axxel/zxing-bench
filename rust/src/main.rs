@@ -1,18 +1,17 @@
-/*
-* Copyright 2024 Axel Waggershauser
-*/
+// Copyright 2024-2026 Axel Waggershauser
 // SPDX-License-Identifier: Apache-2.0
+#![allow(dead_code)]
 
 struct FmtTxt(String, String);
 type Results = Vec<FmtTxt>;
 
 const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp"];
 
-fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
+fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool, fast: bool) -> Results {
     use zxingcpp::BarcodeFormat::*;
     use zxingcpp::*;
 
-    let mut read = read().try_invert(false);
+    let mut read = read().try_harder(!fast).try_rotate(!fast).try_invert(!fast).try_downscale(!fast).try_denoise(!fast);
 
     if limit_formats {
         read.set_formats([Codabar, Code39, Code93, Code128, DataBarOmni, DataBarStkOmni, DataBarExp, DataBarExpStk, EAN8, EAN13, ITF, QRCodeModel2, UPCE]);
@@ -27,7 +26,7 @@ fn test_zxing_cpp(image: &image::GrayImage, limit_formats: bool) -> Results {
         .collect()
 }
 
-fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
+fn test_rxing(image: &image::GrayImage, limit_formats: bool, fast: bool) -> Results {
     use rxing::BarcodeFormat::*;
     use rxing::*;
     use std::collections::HashSet;
@@ -37,6 +36,7 @@ fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
         hints.PossibleFormats = Some(HashSet::from([
             CODABAR, CODE_39, CODE_93, CODE_128, RSS_14, RSS_EXPANDED, EAN_8, EAN_13, ITF, QR_CODE, UPC_E,
         ]));
+        hints.TryHarder = Option::Some(!fast);
     }
 
     let results = rxing::helpers::detect_multiple_in_luma_with_hints(
@@ -47,8 +47,11 @@ fn test_rxing(image: &image::GrayImage, limit_formats: bool) -> Results {
     )
     .unwrap_or_default();
 
+    let has_other_results = results.iter().any(|r| *r.getBarcodeFormat() != rxing::BarcodeFormat::UPC_E);
+
     results
         .iter()
+        .filter(|r| has_other_results && *r.getBarcodeFormat() != rxing::BarcodeFormat::UPC_E || !has_other_results) // just too much UPC_E noise
         .map(|r| FmtTxt(format!("{:?}", r.getBarcodeFormat()), r.getText().to_string()))
         .collect()
 }
@@ -191,12 +194,14 @@ fn collect_images(path: &std::path::Path, files: &mut Vec<String>) {
 fn main() {
     let mut files = Vec::new();
     let mut limit_formats = false;
+    let mut fast = false;
     let mut verbose = false;
 
     for arg in std::env::args().skip(1) {
         match arg.as_str() {
             "--common" => limit_formats = true,
             "--verbose" => verbose = true,
+            "--fast" => fast = true,
             _ => collect_images(std::path::Path::new(&arg), &mut files),
         }
     }
@@ -208,14 +213,14 @@ fn main() {
 
     // warmup
     if let Ok(img) = image::open(&files[0]) {
-        test_zxing_cpp(&img.into_luma8(), limit_formats);
+        test_zxing_cpp(&img.into_luma8(), limit_formats, fast);
     }
 
-    bench(|image| test_zxing_cpp(image, limit_formats), "zxing-cpp", &files, verbose);
-    bench(|image| test_rxing(image, limit_formats), "rxing", &files, verbose);
+    bench(|image| test_zxing_cpp(image, limit_formats, fast), "zxing-cpp", &files, verbose);
+    bench(|image| test_rxing(image, limit_formats, fast), "rxing", &files, verbose);
     bench(|image| test_zbar_rust(image), "zbar-rust", &files, verbose);
     bench(|image| test_zedbar(image, limit_formats), "zedbar", &files, verbose);
     bench(|image| test_bardecoder(image), "bardecoder", &files, verbose);
     bench(|image| test_rqrr(image), "rqrr", &files, verbose);
-    bench(|image| test_zxing_cpp(image, limit_formats), "zxing-cpp", &files, verbose);
+    bench(|image| test_zxing_cpp(image, limit_formats, fast), "zxing-cpp", &files, verbose);
 }
