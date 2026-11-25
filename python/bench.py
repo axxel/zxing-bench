@@ -13,6 +13,9 @@ Notes:
   - qreader downloads a YOLOv8 weights file (~6 MB) on first run.
   - cv2.barcode.BarcodeDetector is only available in OpenCV builds that
 	include the barcode contrib module; it is skipped otherwise.
+  - WeChat QRCode requires an OpenCV build with the wechat_qrcode module
+	and four model files. The supplied Caffe models require OpenCV 4.x;
+	see README.md for setup.
 """
 
 import sys
@@ -35,11 +38,21 @@ _pyzbar = optional_import(lambda: __import__("pyzbar"))
 _qreader = optional_import(lambda: __import__("qreader"))
 _pyzxing = optional_import(lambda: __import__("pyzxing"))
 _cv2 = optional_import(lambda: __import__("cv2"))
+_qrcode_barcode_scanner = optional_import(lambda: __import__("qrcode_barcode_scanner"))
+_pyrxing = optional_import(lambda: __import__("pyrxing"))
 
 HAS_CV2_BARCODE = (
     _cv2 is not None
     and hasattr(_cv2, "barcode")
     and hasattr(_cv2.barcode, "BarcodeDetector")
+)
+
+WECHAT_MODEL_DIR = Path(__file__).resolve().parent / "wechat_qrcode_models"
+WECHAT_MODEL_FILES = (
+	"detect.prototxt",
+	"detect.caffemodel",
+	"sr.prototxt",
+	"sr.caffemodel",
 )
 
 from PIL import Image
@@ -83,8 +96,19 @@ def prime_cache_fn() -> Callable:
 def zxingcpp_fn(qrcode_only: bool) -> Callable:
 	def fn(filepath: str) -> list[tuple[str, str]]:
 		with Image.open(filepath) as img:
-			results = _zxingcpp.read_barcodes(img, formats=_zxingcpp.BarcodeFormat.QRCode if qrcode_only else _zxingcpp.BarcodeFormat.AllReadable)
+			formats = _zxingcpp.BarcodeFormat.QRCode if qrcode_only else _zxingcpp.BarcodeFormat.AllReadable
+			results = _zxingcpp.read_barcodes(img, formats=formats, try_denoise = False)
 			return [(str(result.format), str(result.text)) for result in results]
+	return fn
+
+
+def pyrxing_fn(qrcode_only: bool) -> Callable:
+	def fn(filepath: str) -> list[tuple[str, str]]:
+		results = _pyrxing.read_barcodes(
+			filepath,
+			formats=["QRCode"] if qrcode_only else None,
+		)
+		return [(result.format, result.text) for result in results]
 	return fn
 
 
@@ -114,6 +138,16 @@ def opencv_qr_fn(qrcode_only: bool) -> Callable:
 	return fn
 
 
+def opencv_wechat_qr_fn() -> Callable:
+	detector = _cv2.wechat_qrcode_WeChatQRCode(
+		*(str(WECHAT_MODEL_DIR / name) for name in WECHAT_MODEL_FILES)
+	)
+	def fn(filepath: str) -> list[tuple[str, str]]:
+		texts, _ = detector.detectAndDecode(_cv2.imread(filepath))
+		return [('QRCode', text) for text in texts if text]
+	return fn
+
+
 def opencv_barcode_fn(qrcode_only: bool) -> Callable:
 	detector = _cv2.barcode.BarcodeDetector()
 	def fn(filepath: str) -> list[tuple[str, str]]:
@@ -138,6 +172,21 @@ def pyzxing_fn(qrcode_only: bool) -> Callable:
 			(str(result.get('format')),result.get('parsed') or '')
 			for result in results
 			if result.get('parsed') is not None and (not qrcode_only or result.get('format') == b'QR_CODE')
+		]
+	return fn
+
+def qrcode_ai_com_fn(qrcode_only: bool) -> Callable:
+	def fn(filepath: str) -> list[tuple[str, str]]:
+		report = _qrcode_barcode_scanner.scan(
+			Path(filepath).read_bytes(),
+			profile="fast",
+			budget_ms=0,
+		)
+		return [
+			(detection["symbology"], detection["content"]["text"])
+			for detection in report["detections"]
+			if not qrcode_only or detection["symbology"] == "qr_code"
+			for _ in detection.get("occurrences") or [None]
 		]
 	return fn
 
@@ -171,6 +220,9 @@ def main() -> None:
 	if _zxingcpp is not None:
 		bench("zxingcpp", files, zxingcpp_fn(qrcode_only), verbose)
 
+	if _pyrxing is not None:
+		bench("pyrxing", files, pyrxing_fn(qrcode_only), verbose)
+
 	if _pyzbar is not None:
 		bench("pyzbar", files, pyzbar_fn(qrcode_only), verbose)
 
@@ -179,10 +231,21 @@ def main() -> None:
 
 	if _cv2 is not None:
 		bench("opencv-qr", files, opencv_qr_fn(qrcode_only), verbose)
+		if not hasattr(_cv2, "wechat_qrcode_WeChatQRCode"):
+			print("opencv-wechat-qr skipped: OpenCV wechat_qrcode module unavailable; see python/README.md")
+		elif int(_cv2.__version__.split(".", 1)[0]) >= 5:
+			print("opencv-wechat-qr skipped: Caffe models require OpenCV 4.x; see python/README.md")
+		elif not all((WECHAT_MODEL_DIR / name).is_file() for name in WECHAT_MODEL_FILES):
+			print(f"opencv-wechat-qr skipped: model files missing in {WECHAT_MODEL_DIR}; see python/README.md")
+		else:
+			bench("opencv-wechat-qr", files, opencv_wechat_qr_fn(), verbose)
 		if HAS_CV2_BARCODE and not qrcode_only:
 			bench("opencv-barcode", files, opencv_barcode_fn(qrcode_only), verbose)
 
-	if _qreader is not None:
+	if _qrcode_barcode_scanner is not None and len(files) <= 100:
+		bench("qrcode-ai-com", files, qrcode_ai_com_fn(qrcode_only), verbose)
+
+	if _qreader is not None and len(files) <= 100:
 		bench("qreader (YOLOv8)", files, qreader_fn(qrcode_only), verbose)
 
 	if _pyzxing is not None and len(files) == 1:

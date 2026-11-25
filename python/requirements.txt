@@ -8,6 +8,10 @@ pyzxing
 # qreader requires torch; on CPU-only machines install torch first:
 #   pip install torch --index-url https://download.pytorch.org/whl/cpu
 qreader
-opencv-python
+# qreader depends on opencv-python; WeChat QR uses the 4.x contrib build.
+opencv-python<5
+opencv-contrib-python<5
+qrcode-barcode-scanner==0.11.0
+pyrxing
 
 #spire.barcode
